@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: github-events-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: github_events
+    ports:
+      - "5432:5432"
+    volumes:
+      # Run SQL migrations from config/sql on first startup
+      - ./config/sql:/docker-entrypoint-initdb.d:z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d github_events"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

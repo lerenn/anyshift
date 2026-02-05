@@ -83,3 +83,57 @@ Build a small Go service that:
   - How to run the service.
   - Example request to `/stats`.
 - A **runnable service** satisfying all requirements above.
+
+---
+
+## How to run
+
+### Start PostgreSQL (Docker Compose)
+
+PostgreSQL and schema migrations run via Docker Compose. Migrations in `config/sql/` are applied automatically on first startup.
+
+```bash
+docker compose up -d
+```
+
+This starts Postgres on port 5432 with database `github_events`. The tables `gh_push_events` and `commit_stats` are created from `config/sql/*.sql`.
+
+### Run the service
+
+1. Copy the example env and set `DATABASE_URL` if needed:
+
+   ```bash
+   cp .example.env .env
+   ```
+
+2. Install dependencies and run:
+
+   ```bash
+   go mod tidy
+   go run ./cmd/server
+   ```
+
+   Required env (see `.example.env`): `DATABASE_URL`. Optional: `GH_TOKEN`, `POLL_INTERVAL_SEC`, `HTTP_ADDR`, `CONSUMER_WORKERS`, `CHANNEL_SIZE`.
+
+### Example request to `/stats`
+
+```bash
+curl -s http://localhost:8080/stats
+```
+
+Example response:
+
+```json
+{
+  "global_net_lines_current": 0,
+  "events_seen_since_start": 0
+}
+```
+
+### Health check
+
+```bash
+curl -s http://localhost:8080/health
+```
+
+Example response: `{"status":"ok"}`.
